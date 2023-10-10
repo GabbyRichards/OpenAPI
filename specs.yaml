@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Movie Ticket Booking API
+  description: API for making online payments during the movie ticket booking process
+
+paths:
+  /payment:
+    get:
+      summary: Get payment methods
+      description: Retrieves available payment methods
+      responses:
+        '200':
+          description: Successful response and there are available payment methods
+          content:
+            application/json:
+              example:
+                {
+                  "paymentMethods": ["Credit Card", "PayPal", "Debit Card"]
+                }
+        '404':
+          description: No payment methods found
+          content:
+            application/json:
+              example: 
+                {
+                  "message": "No payment methods available."
+                }
+
+    post:
+      summary: Make payment
+      description: Processes a payment for selected movie tickets
+      requestBody:
+        description: Payment details and ticket information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ticketIds:
+                  type: array
+                  items:
+                    type: string
+                    description: IDs of the selected movie tickets to be paid for
+                paymentMethod:
+                  type: string
+                  description: Chosen payment method (e.g., "Credit Card")
+                amount:
+                  type: number
+                  description: Total payment amount
+
+      responses:
+        '200':
+          description: Successful payment transaction
+          content:
+            application/json:
+              example:
+                {
+                  "transactionId": "98765",
+                  "message": "Payment successful."
+                }
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              example: 
+                {
+                  "message": "Invalid payment details."
+                }
+        '404':
+          description: Ticket not found or already paid for
+          content:
+            application/json:
+              example:
+                {
+                  "message": "Ticket not found or already paid for."
+                }
+
+  /payment/{transactionId}:
+    delete:
+      summary: Cancel payment
+      description: Cancel a payment transaction
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: ID of the payment transaction to be canceled
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Payment cancellation successful
+        '404':
+          description: Transaction not found or cannot be canceled
+          content:
+            application/json:
+              example:
+                {
+                  "message": "Transaction not found or cannot be canceled."
+                }
+        '500':
+          description: Payment cancellation failed due to a server error
+          content:
+            application/json:
+              example:
+                {
+                  "message": "Payment cancellation failed due to a server error."
+                }
